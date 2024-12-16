@@ -1,0 +1,233 @@
+    :root {
+    --main-color: #83AB60;
+    --secondary-color: #2c554c;
+    --section-padding: 60px;
+    --section-background: #f6f6f6;
+}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.hocontainer {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+@media (min-width: 768px) {
+    .container {
+        width: 750px;
+    }
+}
+
+@media (min-width: 992px) {
+    .container {
+        width: 970px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .container {
+        width: 1170px;
+    }
+}
+
+/* ================================
+   4. En-tête (Header)
+   ================================ */
+.header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    background-color: #fff;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header .logo {
+    width: 50px;
+}
+
+.header .links {
+    position: relative;
+}
+
+.header .links .icon {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.header .links .icon span {
+    height: 3px;
+    background-color: #222;
+    transition: width 0.3s;
+}
+
+.header .links ul {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    list-style: none;
+    background-color: var(--section-background);
+    padding: 10px 0;
+    border-radius: 5px;
+    display: none;
+}
+
+.header .links:hover ul {
+    display: block;
+}
+
+/* ================================
+   5. Section d’accueil (Landing)
+   ================================ */
+.landing {
+    background-image: url(../images/landing.jpeg);
+    background-size: cover;
+    height: calc(100vh - 64px);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+.landing .intro-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 90%;
+    text-align: center;
+}
+
+.landing .intro-text h1 {
+    font-size: 50px;
+    color: var(--main-color);
+    margin-bottom: 20px;
+}
+
+.landing .intro-text h1 span {
+    color: var(--secondary-color);
+}
+
+.landing .btn-primary {
+    background-color: var(--main-color);
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 12px 24px;
+    border-radius: 25px;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.landing .btn-primary:hover {
+    background-color: var(--secondary-color);
+    transform: scale(1.05);
+}
+
+/* ================================
+   6. Sections principales
+   ================================ */
+
+/* --- Features --- */
+.features {
+    padding: var(--section-padding);
+    background-color: var(--section-background);
+}
+
+.features .container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.features .feat {
+    text-align: center;
+    padding: 20px;
+}
+
+.features .feat h3 {
+    margin: 20px 0;
+    font-size: 20px;
+    color: var(--main-color);
+}
+
+.features .feat p {
+    font-size: 14px;
+    color: #555;
+}
+
+/* --- About Us --- */
+.about-us {
+    padding: var(--section-padding);
+    background-color: var(--section-background);
+}
+
+.about-us .card {
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.about-us .card img {
+    width: 100%;
+    height: auto;
+}
+
+.about-us .info {
+    padding: 15px;
+}
+
+.about-us .info h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+/* --- Contact --- */
+.contact {
+    padding: var(--section-padding);
+    background-color: var(--section-background);
+}
+
+.contact .form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.contact input,
+.contact textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+/* ================================
+   7. Pied de page (Footer)
+   ================================ */
+.footer {
+    background-color: var(--secondary-color);
+    color: #fff;
+    padding: 20px 0;
+    text-align: center;
+}
+
+.footer a {
+    color: var(--main-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer a:hover {
+    color: #fff;
+}

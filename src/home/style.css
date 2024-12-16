@@ -1,0 +1,508 @@
+/* start of globle  rules */
+:root{
+    --main-color:#83AB60;
+    --secondary-color:#2c554c;
+    --section-padding:60px;
+    --section-background:#f6f6f6;
+}
+*{
+   box-sizing: border-box;
+   padding: 0;
+}
+body{
+    font-family: "Work Sans","san-serif";
+    /* position: relative; */
+}
+.homecontainer{
+    padding-left: 15px ;
+    padding-right: 15px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+ /* small */
+@media  (min-width:768px) {
+    .container {
+        width: 750px;
+    }
+}
+/* meduim */
+@media  (min-width:992px) {
+    .container {
+        width: 970px;
+    } }
+
+/* large */
+ @media  (min-width:1200px) {
+    .homecontainer {
+        width: 1170px;}
+    }
+    a, a:hover, a:focus, a:active {
+        text-decoration: none;
+        color:#83AB60;
+    
+        display: block;
+        width: 30%;
+        font-size: 50px;
+        background-color: var(--secondary-color);
+        text-align: center;
+       
+        
+    }
+/* end of globle  rules */
+/* start components  */
+.homespecial-heading{
+    margin: 0;
+    text-align: center;
+    color: #ebeced;
+    font-size: 100px;
+    font-weight: 800;
+    letter-spacing: -3px;
+}
+.homespecial-heading + p{
+    color: #797979;
+    margin: -30px 0 0;
+    text-align: center;
+}
+@media ( max-width:767px ){
+    .homespecial-heading{
+        font-size: 60px;
+    }
+    .homespecial-heading + p{
+        margin-top: -20px;
+    }
+  
+}
+
+/* end components  */
+
+/* start header */
+.homeheader{
+    z-index: 10000;
+    padding: 20px;
+    position: fixed;
+    
+}
+@media ( max-width:767px ){
+    .homeheader{
+        width: 100%;  
+    }
+     .homelanding .homebtn-primary{
+        font-size: 16px;
+    }
+    }
+.homeheader .homecontainer{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.homeheader .homelogo{
+    width: 50px;
+}
+.homeheader .homelinks{
+    position: relative; 
+
+}
+
+
+.homeheader .homelinks:hover .homeicon span:nth-child(2){
+    width: 100%;
+
+}
+.homeheader .homelinks .homeicon{
+    display: flex;
+    width: 30px;
+    flex-wrap: wrap ;
+    justify-content: end;
+}
+.homeheader .homelinks .homeicon span{
+    background-color: #222;
+    margin-bottom: 3px;
+}
+.homeheader .homelinks .homeicon span:first-child{
+    height: 3px;
+    width: 100%;
+  
+
+
+}
+.homeheader .homelinks .homeicon span:nth-child(2){
+    height: 3px;
+   
+    width: 60%;
+    transition: 0.4s;
+
+}
+
+.homeheader .homelinks .homeicon span:last-child{    
+    height: 3px;
+   
+    width: 100%;
+  
+}
+.homeheader .homelinks ul {
+    min-width: 200px;
+    list-style: none;
+    padding: 0px;
+    margin: 0px;
+    position: absolute;
+    right: 0;
+    background-color: var(--section-background);
+    top: calc(100% + 15px);
+    display: none;
+    z-index: 1;
+}
+.homeheader .homelinks:hover ul{
+    display: block; 
+
+}
+   
+
+.homeheader .homelinks ul::before {
+    content: "";
+    border-width: 10px;
+    border-style: solid;
+    border-color: transparent transparent var(--section-background) transparent;
+    position: absolute;
+    right: 5px;
+    top: -20px;
+   
+}
+.homeheader .homelinks ul li a{
+    display: block;
+    text-decoration: none;
+    padding: 15px;
+    color: #333;
+    transition: 0.3s;
+
+
+
+
+} 
+.homeheader .homelinks ul li a:hover{
+    padding-left: 25px;
+    width: 100%;
+}
+.homeheader .homelinks ul li:not(:last-child){
+    border-bottom:1px solid #ddd;
+}
+
+/* end header */
+
+ /* start landing */
+ .homelanding {
+    background-image: url(../images/landing.jpeg);
+    background-size: cover;
+    height: calc(100vh - 64px);
+    
+ 
+ }
+ .homelanding .homeintro-text { 
+   
+    transform: translate(-50%, -50px);
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    text-align: center;
+    width: 320px;
+    max-width: 100%;
+ }
+.homelanding .homeintro-text h1{
+    margin:0 ;
+    font-weight: bold;
+    font-size: 50px;
+    color: var(--main-color);
+ }
+ .homeanding .homeintro-text h1 span{
+    color:var(--secondary-color);
+ }
+ .homelanding .homeintro-text p{
+    font-size: 19px;
+    line-height: 1.8;
+
+    
+ }
+ .homelanding .homebtn-primary {
+    width: fit-content;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--main-color);
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 12px 24px;
+    border-radius: 25px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.homelanding .homebtn-primary:hover {
+    background-color: var(--secondary-color);
+    transform: translateX(-50%) scale(1.05);
+}
+
+.homelanding {
+    position: relative;
+    overflow: hidden; /* Ensures no accidental overflow */
+}
+.homespecial-heading {
+    font-size: clamp(2rem, 5vw, 6rem); /* Minimum 2rem, max 6rem */
+}
+
+ 
+ 
+  /* end landing  */
+
+/* start features  */
+
+.homefeatures{
+padding-top:  var(--section-padding);
+padding-bottom: var(--section-padding) ;
+background-color: var(--section-background);
+}
+.homefeatures .homecontainer{
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(300px,1fr));
+    column-gap: 20px;
+
+}
+.homefeatures .homecontainer .homefeat{
+    padding: 20px;
+    text-align: center;
+
+}
+.homefeatures .homecontainer .homefeat i{
+    color: var(--main-color);
+
+}
+.homefeatures .homecontainer .homefeat h3{
+    font-weight:800;
+    margin: 30px 0;
+
+
+
+}
+.homefeatures .homecontainer .homefeat p{
+    line-height: 1.8;
+    color: #777;
+    font-size: 13px;
+
+}
+/* end features  */
+
+
+/* start about-us */
+.homeabout-us{
+    padding-top:  var(--section-padding);
+    padding-bottom: var(--section-padding) ;
+    background-color: var(--section-background);
+
+}
+.homeabout-us .homecontainer .homeabout-us-content{
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(300px,1fr));
+    column-gap: 20px;
+    margin-top: 80px;
+    
+}
+.homeabout-us .homecontainer .homeabout-us-content .homecard{
+background-color: white;
+}
+.homeabout-us .homecontainer .homeabout-us-content .homecard img{
+    max-width: 100%;
+
+}
+.homeabout-us .homecontainer .homeabout-us-content .homecard .homeinfo{
+    padding: 20px;
+
+}
+.homeabout-us .homecontainer .homeabout-us-content .homecard .homeinfo h3{
+    margin: 0;
+
+}
+.homeabout-us .homecontainer .homeabout-us-content .homecard .homeinfo p{
+    color: #777;
+    line-height: 1.6;
+    margin-bottom: 0;
+
+}
+/* end about-us */
+/* start contact  */
+.homecontact {
+    padding: var(--section-padding);
+    background-color: var(--section-background);
+}
+
+
+
+.homecontact p {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #555;
+}
+
+.homecontact-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+.homecontact-info {
+    font-size: 16px;
+    color: #333;
+}
+
+.homecontact-info p {
+    margin-bottom: 15px;
+}
+
+.homecontact-info i {
+    color: var(--main-color);
+    margin-right: 10px;
+}
+
+.homecontact-form form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.homecontact-form input,
+.homecontact-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.homecontact-form textarea {
+    resize: none;
+}
+
+.homecontact-form .homebtn-primary {
+    padding: 10px 20px;
+    background-color: var(--main-color);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.homecontact-form .homebtn-primary:hover {
+    background-color: var(--secondary-color);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 767px) {
+    .homecontact-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* end contact  */
+
+/* start footer  */
+.homefooter {
+    background-color: var(--secondary-color);
+    color: #fff;
+    padding: 15px;
+}
+
+.homefooter-content {
+    
+    justify-content: space-between;
+    flex-wrap: wrap;
+    display: flex
+;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+
+
+.homefooter-content h3 {
+    margin-bottom: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--main-color);
+}
+
+.homefooter-content p {
+    font-size: 14px;
+    color: #ddd;
+    line-height: 1.8;
+}
+
+.homefooter-links ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: space-around;
+    
+}
+
+.homefooter-links ul li {
+    margin-bottom: 10px;
+    width: fit-content;
+    display: contents;
+}
+
+.homefooter-links ul li a {
+    color: #ddd;
+    text-decoration: none;
+    transition: color 0.3s;
+    font-size: 15px;
+}
+
+.homefooter-links ul li a:hover {
+    color: var(--main-color);
+}
+
+.homefooter-social .homesocial-icons {
+    display: flex;
+    gap: 10px;
+}
+
+.homefooter-social .homesocial-icons a {
+    color: #ddd;
+    font-size: 18px;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.homefooter-social .homesocial-icons a:hover {
+    color: var(--main-color);
+}
+
+.homefooter-bottom {
+    text-align: center;
+    font-size: 14px;
+    color: #aaa;
+    border-top: 1px solid #555;
+    padding-top: 10px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 767px) {
+    .homefooter-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* end footer  */
+
+
+
+
+
+
