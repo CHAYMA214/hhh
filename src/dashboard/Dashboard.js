@@ -26,7 +26,19 @@ const Dashboard = () => {
   const [newMonth, setNewMonth] = useState({ target: "" });
   const [error, setError] = useState("");
   const { currentUser, logout } = useAuth();
-  const navigate = useNavigate();
+ const navigate = useNavigate();
+ 
+ const [modal, setModal] = useState(false);
+
+ const toggleModal = () => {
+   setModal(!modal);
+ };
+
+ if(modal) {
+   document.body.classList.add('active-modal')
+ } else {
+   document.body.classList.remove('active-modal')
+ }
 
   useEffect(() => {
     if (!currentUser) return;
@@ -180,8 +192,9 @@ const Dashboard = () => {
       console.error("Error deleting note:", error);
     }
   };
+
   return (
-    <div className="page d-flex">
+  <div className="page d-flex">
       {/* Sidebar */}
       <div className="sidebar bg-white p-20 p-relative">
         <h3 className="p-relative txt-c mt-0">habit-up</h3>
@@ -218,26 +231,112 @@ const Dashboard = () => {
           </li>
         </ul>
       </div>
-
-      {/* Content */}
       <div className="content w-full">
-        <div className="head bg-white p-15 between-flex">
+      
+        <div className="head bg-white p-15 between-flex" style={{ justifycontent: "spacebetween" }}>
           <div className="icons d-flex align-center">
             <img
               src={profile}
               onClick={handleLogout}
               style={{ cursor: "pointer" }}
-              alt="Logout Icon"
-            />
+              alt="Logout Icon" />
             <h6 style={{ marginLeft: "10px" }}>Logout</h6>
+            <pre>                                                                      </pre>
+            <button class=" btn btn-ghost delete-all-btn" data-modal-target="#modal"onClick={toggleModal} >Calendar</button>
+            {modal && (
+  <div>
+    <div className="overlay" onClick={toggleModal}></div>
+    <div className="modal">
+    <div class="modal-header">
+                  <div class="title">Calendar</div>
+                  <button data-close-button class="close-button"onClick={toggleModal}>&times;</button>
+                </div>
+                <div class="modal-body d-flex " >
+                <div class="container ">
+                          <div class="left">
+                            <div class="calendar">
+                              <div class="month">
+                                <i class="fas fa-angle-left prev"></i>
+                                <div class="date">december 2015</div>
+                                <i class="fas fa-angle-right next"></i>
+                              </div>
+                              <div class="weekdays">
+                                <div>Sun</div>
+                                <div>Mon</div>
+                                <div>Tue</div>
+                                <div>Wed</div>
+                                <div>Thu</div>
+                                <div>Fri</div>
+                                <div>Sat</div>
+                              </div>
+                              <div class="days"></div>
+                              <div class="goto-today">
+                                <div class="goto">
+                                  <input type="text" placeholder="mm/yyyy" class="date-input" />
+                                  <button class="goto-btn">Go</button>
+                                </div>
+                                <button class="today-btn">Today</button>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="right">
+                            <div class="today-date">
+                              <div class="event-day">wed</div>
+                              <div class="event-date">12th december 2022</div>
+                            </div>
+                            <div class="events"></div>
+                            <div class="add-event-wrapper">
+                              <div class="add-event-header">
+                                <div class="title">Add Event</div>
+                                <i class="fas fa-times close"></i>
+                              </div>
+                              <div class="add-event-body">
+                                <div class="add-event-input">
+                                  <input type="text" placeholder="Event Name" class="event-name" />
+                                </div>
+                                <div class="add-event-input">
+                                  <input
+                                    type="text"
+                                    placeholder="Event Time From"
+                                    class="event-time-from"
+                                  />
+                                </div>
+                                <div class="add-event-input">
+                                  <input
+                                    type="text"
+                                    placeholder="Event Time To"
+                                    class="event-time-to"
+                                  />
+                                </div>
+                              </div>
+                              <div class="add-event-footer">
+                                <button class="add-event-btn">Add Event</button>
+                              </div>
+                            </div>
+                          </div>
+                          <button class="add-event">
+                            <i class="fas fa-plus"></i>
+                          </button>
+                        </div>
+                        <div class="credits">
+                        </div>
+                
+                      </div>
+
+                <div id="overlay"></div>
+   
+    </div>
+  </div>
+)}
           </div>
         </div>
+
         <h1 className="p-relative">Profile</h1>
         <div className="wrapper d-grid gap-20">
           {/* User Info */}
           <div className="welcome bg-white rad-10 txt-c-mobile block-mobile">
             <div className="intro p-20 d-flex space-between bg-eee">
-              <h2 className="m-0">Welcome</h2>
+              <h2 className="m-0">Welcome {userData.name}</h2>
               <img className="hide-mobile" src={welcome} alt="Welcome" />
             </div>
             <img src={profile} alt="Profile Avatar" className="avatar" />
@@ -261,19 +360,19 @@ const Dashboard = () => {
           <div className="tasks p-20 bg-white rad-10">
             <h2 className="mt-0 mb-20">Today Tasks</h2>
             <input
+              class="d-block mb-20 w-full p-10 b-none bg-eee rad-6"
               type="text"
               placeholder="Task Title"
               value={newTask.title}
               onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-              className="d-block mb-10 w-full"
-            />
+              className="d-block mb-10 w-full" />
             <input
+              class="d-block mb-20 w-full p-10 b-none bg-eee rad-6"
               type="text"
               placeholder="Task Remark"
               value={newTask.remarque}
               onChange={(e) => setNewTask({ ...newTask, remarque: e.target.value })}
-              className="d-block mb-10 w-full"
-            />
+              className="d-block mb-10 w-full" />
             <button onClick={handleAddTask} className="btn bg-blue c-white">
               Add Task
             </button>
@@ -288,14 +387,12 @@ const Dashboard = () => {
                     src={check}
                     alt="Mark as done"
                     onClick={() => handleMarkAsDone(task.id)}
-                    style={{ width: "24px", cursor: "pointer" }}
-                  />
+                    style={{ width: "24px", cursor: "pointer" }} />
                   <img
                     src={trash}
                     alt="Delete task"
                     onClick={() => handleDeleteTask(task.id)}
-                    style={{ width: "24px", cursor: "pointer" }}
-                  />
+                    style={{ width: "24px", cursor: "pointer" }} />
                 </div>
               ))}
             </div>
@@ -303,18 +400,18 @@ const Dashboard = () => {
           <div className="quick-notes p-20 bg-white rad-10">
             <h2 className="mt-0 mb-20">Quick Notes</h2>
             <input
+              class="d-block mb-20 w-full p-10 b-none bg-eee rad-6"
               type="text"
               placeholder="Note Title"
               value={newQuickNote.title}
               onChange={(e) => setNewQuickNote({ ...newQuickNote, title: e.target.value })}
-              className="d-block mb-10 w-full"
-            />
+              className="d-block mb-10 w-full" />
             <textarea
+              class="d-block mb-20 w-full p-10 b-none bg-eee rad-6"
               placeholder="Note Content"
               value={newQuickNote.text}
               onChange={(e) => setNewQuickNote({ ...newQuickNote, text: e.target.value })}
-              className="d-block mb-10 w-full"
-            />
+              className="d-block mb-10 w-full" />
             <button onClick={handleAddQuickNote} className="btn bg-blue c-white">
               Add Note
             </button>
@@ -326,52 +423,50 @@ const Dashboard = () => {
                   <img
                     src={trash}
                     alt="Delete quick"
-                    onClick={() =>  handleDeleteNote(note.id)}
-                    style={{ width: "24px", cursor: "pointer" }}
-                  />
+                    onClick={() => handleDeleteNote(note.id)}
+                    style={{ width: "24px", cursor: "pointer" }} />
                 </div>
               ))}
             </div>
           </div>
           <div className="quick-draft p-20 bg-white rad-10">
-      <h2>Monthly Targets List</h2>
-      {error && <p className="error-message">{error}</p>}
-      <div className="input-section">
-        <input
-          type="text"
-          placeholder="📑 Add your new monthly target here.."
-          className="input w-full max-w-xs"
-          value={newMonth.target}
-          onChange={(e) => setNewMonth({ target: e.target.value })}
-        />
-        <button onClick={handleAddMonth} className="btn btn-add">
-        ADD
-        </button>
-      </div>
+            <h2>Monthly Targets List</h2>
+            {error && <p className="error-message">{error}</p>}
+            <div className="input-section">
+              <input
+                type="text"
+                placeholder="📑 Add your new monthly target here.."
+                className="input w-full max-w-xs"
+                value={newMonth.target}
+                onChange={(e) => setNewMonth({ target: e.target.value })} />
+              <button onClick={handleAddMonth} className="btn btn-add">
+                ADD
+              </button>
+            </div>
 
-      <ul className="todos-list">
-        {month.map((mounth) => (
-          <li key={mounth.id} className={`todo-item ${mounth.done ? "done" : ""}`}>
-            <span>{mounth.target}</span>
-            <button onClick={() => handleDeleteMonth(mounth.id)} className="btn btn-delete">
-              Supprimer
-            </button>
-          </li>
-        ))}
-      </ul>
+            <ul className="todos-list">
+              {month.map((mounth) => (
+                <li key={mounth.id} className={`todo-item ${mounth.done ? "done" : ""}`}>
+                  <span>{mounth.target}</span>
+                  <button onClick={() => handleDeleteMonth(mounth.id)} className="btn btn-delete">
+                    Supprimer
+                  </button>
+                </li>
+              ))}
+            </ul>
 
-      <div className="summary">
-        <p>
-          Objectifs terminés :{" "}
-          <span>
-            {month.filter((goal) => goal.done).length} / {month.length}
-          </span>
-        </p>
+            <div className="summary">
+              <p>
+                Objectifs terminés :{" "}
+                <span>
+                  {month.filter((goal) => goal.done).length} / {month.length}
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-  </div>
-</div>  
-  );
-};
+    
+   
+  </div>);}
 export default Dashboard;

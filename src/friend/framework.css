@@ -246,3 +246,14 @@
   border-radius: 6px;
 }
 /* End Components */
+.badge-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px;
+  text-align: center;
+}
+.badge-item img {
+  border-radius: 50%;
+  border: 2px solid #ddd;
+}

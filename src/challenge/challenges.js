@@ -21,8 +21,11 @@ export default function Challenge() {
   const [selectedFormId, setSelectedFormId] = useState(null);
   const [ismainChallengeVisible, setIsmainChallengeVisible] = useState(false);
   const [selectedmainChallengeId, setSelectedmainChallengeId] = useState(null);
-  
- const handleDeletechallenge = async (challengeId) => {
+  const { currentUser } = useAuth();
+  const [newChallenge, setNewChallenge] = useState({title: "", date: "",description: "", progress: 0,action: "",goal:0,});
+  const [challenges, setChallenges] = useState([]);
+  const [habits, sethabits] = useState([]);
+  const handleDeletechallenge = async (challengeId) => {
     const updatedChallenges = challenges.filter((challenge) => challenge.id !== challengeId);
 
     try {
@@ -61,21 +64,15 @@ export default function Challenge() {
     setIsChallengeVisible(false);
     setSelectedChallengeId(null);
   };
-  const { currentUser } = useAuth();
-    const [newChallenge, setNewChallenge] = useState({
-    title: "",
-    date: "",
-    description: "",
-    progress: 0,
-    action: "",
-  });
+ 
   const mainchallenge=[{
     id: 1,
     title: "Elzero Dashboard",
     date: "15/10/2021",
     description: "Elzero Dashboard Project Design And Programming And Hosting",
     action: "Learn new Language",
-    team: [team1, team2, team3, team4, team4],
+    team: [team1, team2, team3, team4, team4], 
+    goal:3,
   },
   {
     id:2,
@@ -84,6 +81,7 @@ export default function Challenge() {
     description: "Academy Portal Project Design And Programming",
     action: "Go to Gym",
     team: [team3, team1, team4],
+    goal:3,
   },
   {
     id: 3,
@@ -92,6 +90,7 @@ export default function Challenge() {
     description: "Chatting Application Project Design",
     action: "Learn Design",
     team: [team3, team2, team4],
+    goal:3,
   },
   {
     id: 4,
@@ -100,6 +99,7 @@ export default function Challenge() {
     description: "Ahmed Dashboard Project Design And Programming And Hosting",
     action: "Stop smoking",
     team: [team1, team2, team3, team4],
+    goal:3,
   },
   {
     id: 5,
@@ -108,10 +108,10 @@ export default function Challenge() {
     description: "Ahmed Portal Project Design And Programming",
     action: "Play football",
     team: [team3, team4, team1],
+    goal:3,
   }]
 
-  const [challenges, setChallenges] = useState([]);
-  const [habits, sethabits] = useState([]);
+
   const loadUserData = async () => {
     try {
      const challengeRef = doc(db, "challenge", currentUser.uid);
@@ -132,7 +132,8 @@ export default function Challenge() {
     if (
       !newChallenge.title ||
       !newChallenge.description ||
-      !newChallenge.action
+      !newChallenge.action||
+      !newChallenge.goal
     ) {
       alert("Please fill all fields.");
       return;
@@ -143,8 +144,9 @@ export default function Challenge() {
       {
         id: challenges.length + 1,
         ...newChallenge,
-        team: [team4]
-        ,
+        team: [team4],
+        done: false,
+
       },
     ];
 
@@ -152,7 +154,7 @@ export default function Challenge() {
       const challengeRef = doc(db, "challenge", currentUser.uid);
       await setDoc(challengeRef, { challenges: updatedChallenges });
       setChallenges(updatedChallenges);
-      setNewChallenge({ title: "", date: "", description: "", progress: 0, action: "" });
+      setNewChallenge({ title: "", date: "", description: "", progress: 0, action: "",goal:0,});
     } catch (error) {
       console.error("Error saving challenge:", error);
     }
@@ -163,7 +165,6 @@ export default function Challenge() {
       const mainChallenge = mainchallenge.find(
         (challenge) => challenge.id === selectedmainChallengeId
       );
-      // Créer un nouvel habit
       const newHabit = {
         id: habits.length + 1,
         title: mainChallenge.title,
@@ -171,6 +172,9 @@ export default function Challenge() {
         description: mainChallenge.description,
         progress: 0,
         action: mainChallenge.action,
+        done: false,
+        goal: mainChallenge.goal,
+      
       };
   
       const updatedhabits = [...habits, newHabit];
@@ -182,8 +186,7 @@ export default function Challenge() {
       } else {
         await setDoc(habitRef, { habits: updatedhabits });
       }
-  
-      // Mise à jour de l'état local
+
       sethabits(updatedhabits);
       closemainChallenge();
     } catch (error) {
@@ -264,6 +267,12 @@ export default function Challenge() {
             onChange={(e) => setNewChallenge({ ...newChallenge, action: e.target.value })}
             className="d-block mb-10 w-full"
           />
+          <input
+            type="number"
+            value={newChallenge.goal}
+            onChange={(e) => setNewChallenge({ ...newChallenge, goal: e.target.value })}
+            className="d-block mb-10 w-full"
+          />
           <button onClick={handleAddChallenge} className="btn bg-blue c-white">
             Add Challenge
           </button>
@@ -291,6 +300,9 @@ export default function Challenge() {
       </div>
       <div className="do d-flex">
         <span className="fs-13 rad-6 bg-eee">{challenge.action}</span>
+      </div>
+      <div className="do d-flex">
+        <span className="fs-13 rad-6 bg-eee">{challenge.goal}</span>
       </div>
       <button
         className="see-more d-block fs-14 bg-blue c-white w-fit btn-shape"
@@ -324,7 +336,8 @@ export default function Challenge() {
   ))}
 
 {mainchallenge.map((mainchallenge) => (
-      <div key={mainchallenge.id} className="project bg-white p-20 rad-6 p-relative">
+      <div key={mainchallenge.id} className="projects-page d-grid m-20 gap-20">
+        <div className="project bg-white p-20 rad-6 p-relative">
         <span className="date fs-13 c-grey">{mainchallenge.date}</span>
         <h4 className="m-0">{mainchallenge.title}</h4>
         <p className="c-grey mt-10 mb-10 fs-14">{mainchallenge.description}</p>
@@ -338,6 +351,9 @@ export default function Challenge() {
         <div className="do d-flex">
           <span className="fs-13 rad-6 bg-eee">{mainchallenge.action}</span>
         </div>
+        <div className="do d-flex">
+          <span className="fs-13 rad-6 bg-eee">{mainchallenge.goal}</span>
+        </div>
         <button
           className="see-more d-block fs-14 bg-blue c-white w-fit btn-shape"
           onClick={() => openmainChallenge(mainchallenge.id)}
@@ -346,7 +362,9 @@ export default function Challenge() {
         </button>
 
         {/* Show the popup for the specific challenge */}
-        {ismainChallengeVisible && selectedmainChallengeId === mainchallenge.id && (
+       
+      </div> 
+      {ismainChallengeVisible && selectedmainChallengeId === mainchallenge.id && (
           <div className="popup d-flex p-20 bg-eee">
             <h2 className="mt-0 mb-10 p-10">Challenge Details</h2>
             <input
@@ -365,7 +383,7 @@ export default function Challenge() {
             />
           </div>
         )}
-      </div>
+        </div>
     ))}
             </div>
             </div>

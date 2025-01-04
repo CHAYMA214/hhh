@@ -1,4 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { db } from "../fireba/firebase";
+import { Pie } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import "./framework.css";
 import "./master.css";
 import photo from "./profile-user.png";
@@ -6,90 +12,221 @@ import change from "./cigarette.png";
 import setting from "./settings.png";
 import multipe from "./multiple-users-silhouette.png";
 import friend from "./friends.png";
-import { Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import { db } from "../fireba/firebase";
-
+ChartJS.register(ArcElement, Tooltip, Legend);
 export default function Habit() {
+   const [modal, setModal] = useState(false);
+  
+   const toggleModal = () => {
+     setModal(!modal);
+   };
+  
+   if(modal) {
+     document.body.classList.add('active-modal')
+   } else {
+     document.body.classList.remove('active-modal')
+   }
+  
+  const [newHabit, setNewHabit] = useState({
+    habit: "",
+    goal: 0,
+    reminder: "",
+    goalType: "times",
+    goalFrequency: "day",
+  });
+  const [habits, setHabits] = useState([]);
   const [isFormVisible, setIsFormVisible] = useState(false);
-  const [myhabit, setMyHabit] = useState([]);
-  const [newMyHabit, setNewMyHabit] = useState({ habit: "", goal: "", reminder: "" });
   const [error, setError] = useState("");
   const { currentUser } = useAuth();
-
-  const openForm = () => {
-    setIsFormVisible(true);
+  const [challenges, setChallenges] = useState([]);
+  const [myhabits, setmyHabits] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null); // Pour stocker le habit ou le challenge sélectionné
+  const [selectedType, setSelectedType] = useState(""); // Pour identifier si c'est un habit ou un challenge
+  const handleShowDetails = (item, type) => {
+    setSelectedItem(item);
+    setSelectedType(type);
+    toggleModal();
   };
-
-  const closeForm = () => {
-    setIsFormVisible(false);
-  };
-
+  
   useEffect(() => {
     if (!currentUser) return;
 
-    async function loadMyHabitData() {
+    async function loadUserData() {
       try {
-        const habitSources = ["myhabit", "challenge", "habit"];
-        const habitPromises = habitSources.map(async (source) => {
-          const docRef = doc(db, source, currentUser.uid);
-          const docSnap = await getDoc(docRef);
-          return docSnap.exists() ? docSnap.data().habit || [] : [];
-        });
+        // Récupérer les habitudes
+        const habitsRef = doc(db, "myhabits", currentUser.uid);
+        const habitsSnap = await getDoc(habitsRef);
 
-        const allHabits = await Promise.all(habitPromises);
-        const mergedHabits = allHabits.flat();
-        setMyHabit(mergedHabits);
+        let updatedHabits = [];
+        if (habitsSnap.exists()) {
+          updatedHabits = habitsSnap.data().habits || [];
+        }
+
+        // Récupérer les challenges
+        const challengeRef = doc(db, "challenge", currentUser.uid);
+        const challengeSnap = await getDoc(challengeRef);
+        let updatedChallenges = [];
+        if (challengeSnap.exists()) {
+          updatedChallenges = challengeSnap.data().challenges || [];
+        }
+        const myhabitRef = doc(db, "habit", currentUser.uid);
+        const myhabitSnap = await getDoc(myhabitRef);
+        let updatedmyhabit = [];
+        if (myhabitSnap.exists()) {
+          updatedmyhabit =myhabitSnap.data().habits|| [];
+        }
+
+        setmyHabits(updatedmyhabit);
+        setChallenges(updatedChallenges);
+        setHabits(updatedHabits);
       } catch (err) {
         console.error("Error loading data:", err);
         setError("Failed to load data.");
       }
     }
 
-    loadMyHabitData();
+    loadUserData();
   }, [currentUser]);
 
+  const openForm = () => setIsFormVisible(true);
+  const closeForm = () => setIsFormVisible(false);
+
   const handleAddHabit = async () => {
-    if (!newMyHabit.habit || !newMyHabit.goal || !newMyHabit.reminder) {
+    if (!newHabit.habit.trim()) {
+      alert("Habit name cannot be empty.");
+      return;
+  }
+  if (Number(newHabit.goal) <= 0) {
+      alert("Goal must be a positive number.");
+      return;
+  }
+    if (!newHabit.habit || !newHabit.goal || !newHabit.reminder) {
       alert("Please fill in all fields.");
       return;
     }
-    const updatedMyHabits = [
-      ...myhabit,
-      {
-        id: myhabit.length + 1,
-        habit: newMyHabit.habit,
-        goal: newMyHabit.goal,
-        reminder: newMyHabit.reminder,
-        done: false,
-      },
-    ];
+
+    const newHabitEntry = {
+      id: Date.now(),
+      ...newHabit,
+      done: false,
+      progress: 0, // Initialisation
+    };
+    
+
+    const updatedHabits = [...habits, newHabitEntry];
 
     try {
-      const myHabitRef = doc(db, "myhabit", currentUser.uid);
-      await setDoc(myHabitRef, { habit: updatedMyHabits });
-      setMyHabit(updatedMyHabits);
-      setNewMyHabit({ habit: "", goal: "", reminder: "" });
+      const habitsRef = doc(db, "myhabits", currentUser.uid);
+      await setDoc(habitsRef, { habits: updatedHabits });
+      setHabits(updatedHabits);
+      setNewHabit({ habit: "", goal: 0, reminder: "", goalType: "times", goalFrequency: "day" });
       closeForm();
     } catch (error) {
       console.error("Error saving habit:", error);
     }
   };
 
-  const handleMyHabitAsDone = async (habitId) => {
-    const updatedMyHabits = myhabit.map((habit) =>
+  const toggleHabitDone = async (habitId) => {
+    const updatedHabits = habits.map((habit) =>
       habit.id === habitId ? { ...habit, done: !habit.done } : habit
     );
 
     try {
-      const myHabitRef = doc(db, "myhabit", currentUser.uid);
-      await updateDoc(myHabitRef, { habit: updatedMyHabits });
-      setMyHabit(updatedMyHabits);
+      const habitsRef = doc(db, "myhabits", currentUser.uid);
+      await updateDoc(habitsRef, { habits: updatedHabits });
+      setHabits(updatedHabits);
     } catch (error) {
       console.error("Error updating habit:", error);
     }
   };
+
+  const toggleChallengeDone = async (challengeId) => {
+    const updatedChallenges = challenges.map((challenge) =>
+      challenge.id === challengeId ? { ...challenge, done: !challenge.done } : challenge
+    );
+
+    try {
+      const challengeRef = doc(db, "challenge", currentUser.uid);
+      await updateDoc(challengeRef, { challenges: updatedChallenges });
+      setChallenges(updatedChallenges);
+    } catch (error) {
+      console.error("Error updating challenge:", error);
+    }
+  };
+
+  const togglemyHabitDone = async (habitId) => {
+    const updatedmyHabits =myhabits.map((habit) =>
+      habit.id === habitId ? { ...habit, done: !habit.done } : habit
+    );
+
+    try {
+      const habitsRef = doc(db, "habit", currentUser.uid);
+      await updateDoc(habitsRef, { habits: updatedmyHabits });
+      setmyHabits(updatedmyHabits);
+    } catch (error) {
+      console.error("Error updating habit:", error);
+    }
+  };
+  const pieData = (data) => ({
+    labels: ["Completed", "In Progress"],
+    datasets: [
+        {
+            data: [
+                data.filter((item) => item.done).length,
+                data.filter((item) => !item.done).length,
+            ],
+            backgroundColor: ["#36A2EB", "#FF6384"],
+        },
+    ],
+});
+const pieDataa = (data1,data2) => ({
+  labels: ["Completed", "In Progress"],
+  datasets: [
+      {
+          data: [
+              data1.filter((item) => item.done).length,
+              data1.filter((item) => !item.done).length,
+              data2.filter((item) => item.done).length,
+              data2.filter((item) => !item.done).length,
+          ],
+          backgroundColor: ["#36A2EB", "#FF6384"],
+      },
+  ],
+});
+const handleIncrementProgressGeneric = async (item, collectionName, fieldName) => {
+  try {
+    const docRef = doc(db, collectionName, currentUser.uid);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      const updatedItems = (data[fieldName] || []).map((element) => {
+        if (element.id === item.id) {
+          const currentProgress = element.progress || 0;
+          const updatedProgress = Math.min(currentProgress + 1, element.goal); // Ensure progress doesn't exceed the goal
+
+          return {
+            ...element,
+            progress: updatedProgress,
+            done: updatedProgress === parseInt(element.goal), // Mark as done if progress equals goal
+          };
+        }
+        return element;
+      });
+
+      await updateDoc(docRef, { [fieldName]: updatedItems }); // Correctly use fieldName here
+
+      // Update local state
+      if (collectionName === "habit") setmyHabits(updatedItems);
+      if (collectionName === "challenge") setChallenges(updatedItems);
+      if (collectionName === "myhabits") setHabits(updatedItems);
+    }
+  } catch (error) {
+    console.error("Error incrementing progress:", error);
+  }
+};
+
+
+
 
   return (
     <div className="page d-flex">
@@ -128,8 +265,9 @@ export default function Habit() {
           </li>
         </ul>
       </div>
+
       <div className="content w-full">
-        <h1 className="p-relative">My habits</h1>
+        <h1 className="p-relative">My Habits</h1>
 
         {isFormVisible && (
           <div className="add-habit-form bg-white p-20 rad-6 m-20">
@@ -137,8 +275,8 @@ export default function Habit() {
             <input
               type="text"
               placeholder="Habit"
-              value={newMyHabit.habit}
-              onChange={(e) => setNewMyHabit({ ...newMyHabit, habit: e.target.value })}
+              value={newHabit.habit}
+              onChange={(e) => setNewHabit({ ...newHabit, habit: e.target.value })}
               className="d-block mb-10 w-full"
             />
             <div className="labels" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
@@ -148,14 +286,15 @@ export default function Habit() {
                 type="number"
                 id="goal"
                 min="1"
-                value={newMyHabit.goal}
-                onChange={(e) => setNewMyHabit({ ...newMyHabit, goal: e.target.value })}
+                value={newHabit.goal}
+                onChange={(e) => setNewHabit({ ...newHabit, goal: e.target.value })}
                 required
               />
               <select
                 id="goalType"
                 style={{ color: "black" }}
-                onChange={(e) => setNewMyHabit({ ...newMyHabit, goalType: e.target.value })}
+                value={newHabit.goalType}
+                onChange={(e) => setNewHabit({ ...newHabit, goalType: e.target.value })}
               >
                 <option value="times">Times</option>
                 <option value="minutes">Minutes</option>
@@ -164,7 +303,8 @@ export default function Habit() {
               <select
                 id="goalFrequency"
                 style={{ color: "black" }}
-                onChange={(e) => setNewMyHabit({ ...newMyHabit, goalFrequency: e.target.value })}
+                value={newHabit.goalFrequency}
+                onChange={(e) => setNewHabit({ ...newHabit, goalFrequency: e.target.value })}
               >
                 <option value="day">Per Day</option>
                 <option value="week">Per Week</option>
@@ -174,16 +314,15 @@ export default function Habit() {
             <input
               type="text"
               placeholder="Reminder"
-              value={newMyHabit.reminder}
-              onChange={(e) => setNewMyHabit({ ...newMyHabit, reminder: e.target.value })}
+              value={newHabit.reminder}
+              onChange={(e) => setNewHabit({ ...newHabit, reminder: e.target.value })}
               className="d-block mb-10 w-full"
-              style={{ margin: "5px" }}
             />
 
             <button className="btn bg-blue c-white" onClick={handleAddHabit}>
               Add Habit
             </button>
-            <button className="btn bg-blue c-white" onClick={closeForm} style={{ margin: '5px' }}>
+            <button className="btn bg-blue c-white" onClick={closeForm} style={{ margin: "5px" }}>
               Close
             </button>
           </div>
@@ -193,31 +332,131 @@ export default function Habit() {
           <div className="tasks p-20 bg-white rad-10">
             <h2 className="m-0">Current Habits</h2>
             <div id="habitsContainer">
-              {myhabit.filter((habit) => !habit.done).map((habit) => (
+              {myhabits.filter((habit) => !habit.done).map((habit) => (
+                <div key={habit.id}>
+                <span>{habit.action}</span>
+                <button onClick={() => handleShowDetails(habit, "habit")}>Details</button>
+                <button onClick={() => handleIncrementProgressGeneric(habit, "habit", "habits")}>+1</button>
+                <button onClick={() => togglemyHabitDone(habit.id)}>Mark as Done</button>
+              </div>
+              ))}
+              {challenges.filter((challenge) => !challenge.done).map((challenge) => (
+                <div key={challenge.id}>
+                <span>{challenge.title}</span>
+                <button onClick={() => handleShowDetails(challenge, "challenge")}>
+                  Details
+                </button>
+                <button onClick={() => toggleChallengeDone(challenge.id)}>Mark as Done</button>
+                <button onClick={() => handleIncrementProgressGeneric(challenge, "challenge", "challenges")
+}>
+                  +1
+                </button>
+              </div>
+              
+              ))} 
+              {habits.filter((habit) => !habit.done).map((habit) => (
                 <div key={habit.id} className="habit-box">
-                  <span>{habit.habit || habit.action || habit.title}</span>
-                  <button onClick={() => handleMyHabitAsDone(habit.id)}>Mark as Done</button>
+                  <span>{habit.habit}</span>
+                  <button onClick={() => handleShowDetails(habit, "myhabits")}>
+                  Details
+                </button>
+                <button onClick={() => toggleHabitDone(habit.id)}>Mark as Done</button>
+                <button onClick={() =>handleIncrementProgressGeneric(habit, "myhabits", "habits")
+}>
+                  +1
+                </button>
+                  </div>
+                
+              ))}
+            </div>
+          </div>
+
+          <div className="tasks p-20 bg-white rad-10">
+            <h2 className="m-0">Completed Habits</h2>
+            <div id="completedHabits">
+               {myhabits.filter((habit) => habit.done).map((habit) => (
+    <div key={habit.id} className="habit-box">
+      <span>{habit.action}</span>
+     
+      <button onClick={() => togglemyHabitDone(habit.id)}>Mark as Undone</button>
+      <button onClick={() => handleShowDetails(habit, "habit")}>Details</button>
+    </div>
+  ))}
+              {challenges.filter((challenge) => challenge.done).map((challenge) => (
+                <div key={challenge.id} className="habit-box">
+                  <span>{challenge.title}</span>
+                  <button onClick={() => toggleChallengeDone(challenge.id)}>Mark as Undone</button>
+                  <button onClick={() => handleShowDetails(challenge, "challenge")}>Details</button>
+                  
+                 
+                </div>
+              ))}
+               {habits.filter((habit) => habit.done).map((habit) => (
+                <div key={habit.id} className="habit-box">
+                  <span>{habit.habit}</span>
+                  <button onClick={() => toggleHabitDone(habit.id)}>Mark as Undone</button>
+                  <button onClick={() => handleShowDetails(habit, "myhabit")}>Details</button>
                 </div>
               ))}
             </div>
           </div>
-          <div className="tasks p-20 bg-white rad-10">
-            <h2 className="m-0">Completed Habits</h2>
-            <div id="completedHabits">
-              {myhabit.filter((habit) => habit.done).map((habit) => (
-                <div key={habit.id} className="habit-box">
-                  <span>{habit.habit || habit.action || habit.title}</span>
-                  <button onClick={() => handleMyHabitAsDone(habit.id)}>Mark as Undone</button>
-                </div>
-              ))}
-            </div>
-            </div>
         </div>
 
-        <button className="btn bg-blue c-white" onClick={openForm} style={{ position: 'absolute', top: '20px', right: '20px' }}>
+        <button
+          className="btn bg-blue c-white"
+          onClick={openForm}
+          style={{ position: "absolute", top: "20px", right: "20px" }}
+        >
           +
         </button>
+        <div className="wrapper d-grid gap-20">
+          {/* Graphique pour les habitudes */}
+          <div className="tasks p-20 bg-white rad-10">
+            <h2>Habits Overview</h2>
+            <Pie data={pieData(habits)} />
+          </div>
+
+          {/* Graphique pour les challenges */}
+          <div className="tasks p-20 bg-white rad-10">
+            <h2>Challenges Overview</h2>
+            <Pie data={pieDataa(challenges,myhabits)} />
+
+          </div>
+        </div>
       </div>
-    </div>
+     
+      {modal && selectedItem && (
+          <div className="modal">
+            <div className="modal-header">
+              <h3>{selectedType === "habit" ? "Habit Details" : "Challenge Details"}</h3>
+              <button onClick={toggleModal}>&times;</button>
+            </div>
+            <div className="modal-body">
+              <h4>{selectedItem.habit || selectedItem.title}</h4>
+              <Pie
+                data={{
+                  labels: ["Completed", "Remaining"],
+                  datasets: [
+                    {
+                      data: [
+                        selectedItem.progress,
+                        selectedItem.goal - selectedItem.progress,
+                      ],
+                      backgroundColor: ["#36A2EB", "#FF6384"],
+                    },
+                  ],
+                }}
+              />
+              <p>
+                Goal: {selectedItem.goal} {selectedItem.goalType} per {selectedItem.goalFrequency}
+              </p>
+              <p>Progress: {selectedItem.progress}</p>
+            </div>
+          </div>
+        )}
+      </div>
+       
+  
+  
   );
 }
